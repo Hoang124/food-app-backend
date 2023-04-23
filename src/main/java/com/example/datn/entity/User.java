@@ -29,8 +29,8 @@ public class User {
 
     private String name;
     private LocalDate birthday;
-    private String address;
     private String phone_number;
+    private String address;
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
@@ -46,8 +46,4 @@ public class User {
     
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Restaurant> restaurants;
-    
-    @OneToOne(mappedBy = "user")
-    private UserAddress userAddress;
-    
 }
