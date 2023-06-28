@@ -6,8 +6,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "food_id"})})
 public class FavoriteFood {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,37 +32,9 @@ public class FavoriteFood {
     @JoinColumn(name = "food_id")
     private Food food;
 
-//	public FavoriteFood(User user, Food food) {
-//		super();
-//		this.user = user;
-//		this.food = food;
-//	}
-
-	public FavoriteFood() {
+	public FavoriteFood(User user, Food food) {
 		super();
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
 		this.user = user;
-	}
-
-	public Food getFood() {
-		return food;
-	}
-
-	public void setFood(Food food) {
 		this.food = food;
 	}
     

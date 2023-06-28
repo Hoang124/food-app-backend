@@ -31,6 +31,12 @@ public class SecurityConfig {
 	      .authorizeHttpRequests()
 	      .requestMatchers("/api/v1/auth/**")
 	        .permitAll()
+	      .requestMatchers("/api/v1/account/**")
+	      	.permitAll()
+	      .requestMatchers("/api/v1/restaurant/**")
+	      	.permitAll()
+		  .requestMatchers("/api/v1/insert-data/**")
+		    .permitAll()
 	      .anyRequest()
 	        .authenticated()
 	      .and()
@@ -42,9 +48,7 @@ public class SecurityConfig {
 	      .logout()
 	      .logoutUrl("/api/v1/auth/logout")
 	      .addLogoutHandler(logoutHandler)
-	      .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
-	  ;
-	
+	      .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext());
 	  return http.build();
 	}
 

@@ -12,11 +12,12 @@ import com.example.datn.entity.Account;
 import com.example.datn.entity.RefreshToken;
 import com.example.datn.entity.User;
 import com.example.datn.enums.Role;
+import com.example.datn.exception.ConflictException;
+import com.example.datn.exception.NotFoundException;
 import com.example.datn.exception.UnAuthorizeException;
 import com.example.datn.jwt.JwtTokenProvider;
 import com.example.datn.repository.AccountRepository;
 import com.example.datn.repository.RefreshTokenRepository;
-import com.example.datn.repository.UserRepository;
 import com.example.datn.request.AuthRequest;
 import com.example.datn.request.RegisterRequest;
 import com.example.datn.response.AuthResponse;
@@ -35,27 +36,31 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 	private final AccountRepository accountRepository;
 	private final RefreshTokenRepository tokenRepository;
-	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtService;
 	private final AuthenticationManager authenticationManager;
 
-	private User saveUser(RegisterRequest request) {
-		var user = User.builder().name(request.getName()).birthday(request.getBirthDay())
-				.phone_number(request.getPhoneNumber()).address(request.getAddress()).build();
-		userRepository.save(user);
-		return user;
-	}
-
-	public AuthResponse register(RegisterRequest request) {
-		var user = saveUser(request);
-		var account = Account.builder().email(request.getEmail())
-				.password(passwordEncoder.encode(request.getPassword())).role(Role.USER).user(user).build();
-		var savedUser = accountRepository.save(account);
-		var jwtToken = jwtService.generateToken(account);
-		var refreshToken = jwtService.generateRefreshToken(account);
-		saveUserToken(savedUser, jwtToken);
-		return AuthResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
+	public void register(RegisterRequest request) {
+		if(!accountRepository.existsByEmail(request.getEmail())) {
+			var user = User.builder()
+					.name(request.getName())
+					.birthDay(request.getBirthDay())
+					.phoneNumber(request.getPhoneNumber())
+					.address(request.getAddress())
+					.build();
+			var account = Account.builder()
+					.email(request.getEmail())
+					.password(passwordEncoder.encode(request.getPassword()))
+					.role(Role.USER)
+					.user(user)
+					.build();
+			var savedUser = accountRepository.save(account);
+			var jwtToken = jwtService.generateToken(account);
+			var refreshToken = jwtService.generateRefreshToken(account);
+			saveUserToken(savedUser, jwtToken);
+		} else {
+			throw new ConflictException("Existed Account");
+		}
 	}
 
 	public AuthResponse authenticate(AuthRequest request) {
@@ -66,10 +71,11 @@ public class AuthService {
 		}catch(BadCredentialsException ex) {
 			throw new UnAuthorizeException("username and password invalid");
 		}
-		var account = accountRepository.findByEmail(request.getEmail()).orElseThrow();
+		var account = accountRepository.findByEmail(request.getEmail())
+				.orElseThrow(() -> new NotFoundException("Email don't exists"));
 		var jwtToken = jwtService.generateToken(account);
 		var refreshToken = jwtService.generateRefreshToken(account);
-		revokeAllUserTokens(account);
+//		revokeAllUserTokens(account);
 		saveUserToken(account, jwtToken);
 		var expired = jwtService.extractExpiration(jwtToken).getTime();
 		UserResponse userResponse = new UserResponse();
@@ -77,10 +83,13 @@ public class AuthService {
 		if (account != null) {
 			if (account.getUser() != null) {
 				userResponse.setAddress(account.getUser().getAddress());
-				userResponse.setBirthDay(account.getUser().getBirthday());
+				userResponse.setBirthDay(account.getUser().getBirthDay());
 				userResponse.setName(account.getUser().getName());
-				userResponse.setPhoneNumber(account.getUser().getPhone_number());
-				userResponse.setId(account.getUser().getId());
+				userResponse.setPhoneNumber(account.getUser().getPhoneNumber());
+				userResponse.setId(account.getUserId());
+				userResponse.setImage(account.getUser().getImage());
+			} else {
+				throw new NotFoundException("User don't exists");
 			}
 		}
 		return AuthResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).expired(expired)
@@ -116,7 +125,7 @@ public class AuthService {
 			var user = this.accountRepository.findByEmail(userEmail).orElseThrow();
 			if (jwtService.isTokenValid(refreshToken, user)) {
 				var accessToken = jwtService.generateToken(user);
-				revokeAllUserTokens(user);
+//				revokeAllUserTokens(user);
 				saveUserToken(user, accessToken);
 				var authResponse = AuthResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
 				try {

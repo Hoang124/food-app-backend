@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.datn.request.AuthRequest;
@@ -24,10 +25,11 @@ public class AuthController {
 	  private final AuthService service;
 
 	  @PostMapping("/register")
-	  public ResponseEntity<AuthResponse> register(
+	  public ResponseEntity<?> register(
 	      @RequestBody RegisterRequest request
 	  ) {
-	    return ResponseEntity.ok(service.register(request));
+		service.register(request);
+	    return ResponseEntity.ok(null);
 	  }
 	  @PostMapping("/login")
 	  public ResponseEntity<AuthResponse> authenticate(

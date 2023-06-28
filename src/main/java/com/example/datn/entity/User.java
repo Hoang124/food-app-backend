@@ -1,6 +1,5 @@
 package com.example.datn.entity;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -8,8 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
@@ -28,9 +25,10 @@ public class User {
     private Long id;
 
     private String name;
-    private LocalDate birthday;
-    private String phone_number;
+    private Long birthDay;
+    private String phoneNumber;
     private String address;
+    private String image;
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;

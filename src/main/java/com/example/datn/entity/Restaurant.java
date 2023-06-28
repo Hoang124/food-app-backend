@@ -1,16 +1,12 @@
 package com.example.datn.entity;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Restaurant {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String address;
@@ -31,11 +27,11 @@ public class Restaurant {
     private String lng;
     //vĩ độ
     private String lat;
-    private String phone_number;
-    private String state;
+    private String phoneNumber;
+    private boolean state;
     private String image;
-    private LocalDateTime open_time;
-    private LocalDateTime close_time;
+    private Long openTime;
+    private Long closeTime;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")

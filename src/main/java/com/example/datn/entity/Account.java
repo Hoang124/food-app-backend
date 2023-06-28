@@ -10,11 +10,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.example.datn.enums.Role;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
@@ -28,11 +30,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 public class Account implements UserDetails{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Id
+	private Long userId;
+	
+	@Column(unique = true)
 	private String email;
 	private String password;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
+    @MapsId
     private User user;
     
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)

@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 public class UserResponse {
 	private Long id;
 	private String address;
-	private LocalDate birthDay;
+	private Long birthDay;
 	private String name;
 	private String phoneNumber;
+	private String image;
 }
